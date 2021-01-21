@@ -297,7 +297,7 @@ namespace MW_001_TEST
 
         private void textBox_SIMNUM_TextChanged(object sender, EventArgs e)
         { 
-            num = 0;
+            num = 1;
 
             if (textBox_SIMNUM.TextLength == 15)
             {
@@ -309,12 +309,12 @@ namespace MW_001_TEST
                         switch (num)
                         {
                             case 1:
-                                ATTEST();
+                                IMEITEST();
                                 TESTREAD();
                                 break;
 
                             case 2:
-                                IMEITEST();
+                                ATTEST();
                                 TESTREAD();
                                 break;
 
@@ -356,7 +356,7 @@ namespace MW_001_TEST
                             case 10:
                                 CHECKID();
                                 TESTREAD();
-                                TESTMODE = false;
+                                //TESTMODE = false;
                                 break;
 
                             case 11:
@@ -403,32 +403,34 @@ namespace MW_001_TEST
                 listBox_LOG.Update();
 
 
-
-                //!!AT
-                if (s.StartsWith("!!AT"))
-                {
-                    AT = true;
-                    return;
-                }
-                //!!CITYCODE
-                if (s.StartsWith("!!CITYCODE"))
-                {
-                    CITY = true;
-                    return;
-                }
-                //!!SENSNO
-                if (s.StartsWith("!!SENSORNO"))
-                {
-                    TERM = true;
-                    return;
-                }
                 //!!ATTACH
                 if (s.StartsWith("!!ATTACH"))
                 {
                     ATH = true;
                     return;
+                    
 
                 }
+                //!!AT
+                if (s.StartsWith("!!AT"))
+                {
+                    AT = true;
+                    
+                }
+                //!!CITYCODE
+                if (s.StartsWith("!!CITYCODE"))
+                {
+                    CITY = true;
+                    
+                    
+                }
+                //!!SENSNO
+                if (s.StartsWith("!!SENSORNO"))
+                {
+                    TERM = true;
+                    
+                }
+
 
                 if(ATH == true)
                 {
@@ -447,11 +449,12 @@ namespace MW_001_TEST
                         ATH = false;
                         TESTMODE = false;
                         TESTReading = false;
+                        TESTRESULTS = false
                         break;
                     }
                 }
 
-                if (s.StartsWith("OK"))
+                if (s.Contains("OK"))
                 {
                     if (AT == true)
                     {
@@ -695,36 +698,39 @@ namespace MW_001_TEST
             if (serialPort1.IsOpen)
             {
 
+                startDT = DateTime.Now;
 
                 while (TESTReading == true)
                 {
-                    this.Activate();
-                    Application.DoEvents();
-
-                    if (ATH == true)
-                    {
-                        DateTime endDT = DateTime.Now;
-                        TimeSpan ts = endDT - startDT;
-
-                        if (ts.TotalSeconds > 20)
-                        {
-                            textBox_memo.Text = "ATTACHできませんでした。";
-                            textBox_memo.Update();
-                            ATH = false;
-                            TESTMODE = false;
-                            TESTReading = false;
-
-                        }
-                    }
 
                     try
                     {
+                        this.Activate();
+                        Application.DoEvents();
+
+                        DateTime endDT = DateTime.Now;
+                        TimeSpan ts = endDT - startDT;
+
                         if (serialPort1.BytesToRead > 0)
                         {
                             dataIN = serialPort1.ReadExisting();
                             Rxline = dataIN.Split('\n');
+                            //listBox_LOG.Items.Add(Rxline[0]);
+                            //listBox_LOG.SelectedIndex = listBox_LOG.Items.Count - 1;
+                            //listBox_LOG.Update();
                             this.Invoke(new EventHandler(TESTData1));
                         }
+
+                        if (ts.TotalSeconds > 60)
+                        {
+                            textBox_memo.Text = "タイムアウトしました。";
+                            textBox_memo.Update();
+                            ATH = false;
+                            TESTRESULTS = false;
+                            TESTMODE = false;
+                            TESTReading = false;
+                        }
+
                     }
                     catch
                     {
@@ -733,7 +739,6 @@ namespace MW_001_TEST
                     }
                 }
             }
-            
         }
 
         private void ATTEST()
@@ -742,7 +747,7 @@ namespace MW_001_TEST
             string s;
             s = "!!AT" + Environment.NewLine;
             serialPort1.WriteLine(s);
-            //System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(200);
         }
         private void IMEITEST()
         {
@@ -750,7 +755,7 @@ namespace MW_001_TEST
             string s;
             s = "!!IMEI" + Environment.NewLine;
             serialPort1.WriteLine(s);
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(200);
         }
         private void WNCTEST()
         {
