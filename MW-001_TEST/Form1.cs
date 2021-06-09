@@ -35,10 +35,6 @@ namespace MW_001_TEST
             InitializeComponent();
         }
 
-
-
-
-
         private void Form1_Load(object sender, EventArgs e)
         {
             string[] ports = SerialPort.GetPortNames();
@@ -449,7 +445,7 @@ namespace MW_001_TEST
                         ATH = false;
                         TESTMODE = false;
                         TESTReading = false;
-                        TESTRESULTS = false
+                        TESTRESULTS = false;
                         break;
                     }
                 }
